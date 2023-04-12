@@ -51,7 +51,7 @@ def drop():
     arm.run_target(60, 0)
 
 #US04
-def check_color() -> ():
+def check_color():
     "Checks color "
     color = color_sensor.color()
     robot.screen.print(color)
