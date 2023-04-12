@@ -1,0 +1,11 @@
+test pickup
+start the pickup function then control if the item is picked up.
+
+test drop
+start the drop function then control if the item is dropped.
+
+test color check
+start the check_color function then check if the robot can tell the right color.
+
+test location check
+start the pickup function then control if the robot picks up the item when the item is on the location, and doesn't pick up something when the item is not on the location.
