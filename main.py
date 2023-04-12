@@ -70,3 +70,10 @@ while True:
     elif(Button.CENTER in pressedButtons):
         check_color()
         wait(100)
+    
+    if(Button.LEFT in pressedButtons):
+        base.run(50)
+    elif(Button.RIGHT in pressedButtons):
+        base.run(-50)
+    else:
+        base.hold()
