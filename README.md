@@ -44,6 +44,6 @@ https://docs.google.com/document/d/1GjgFoYxHxjOlEtBsgi7YkAAaRv6gSJomERTnEkErh2c/
 - [x] US06: As a customer, I want the robot to be able to pick up items from elevated positions.
 - [x] US08B: As a customer, I want to be able to calibrate items with three different colors and drop the items off at a specific drop-off zones based on color
 - [x] US09: As a customer, I want the robot to check the pickup location periodically to see if a new item has arrived
-- [ ] US10: As a customer, I want the robot to sort items at a specific time
+- [x] US10: As a customer, I want the robot to sort items at a specific time
 - [x] US11: As a customer, I want the robot to communicate and work together on items sorting without colliding with each other
 - [x] US12: As a customer, I want to be able to manually set the locations and heights of one pick-up zone and two drop-off zones.
