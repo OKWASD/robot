@@ -29,7 +29,7 @@ The server and client robots should be paired before running and the server shou
 
 If you want to run only one robot use main.py instead of client.py & server.py
 
-Manual:
+### Instructions:
 Moving the arm when calibrating use the arrow buttons
 press the center button to confirm the position.
 
@@ -39,6 +39,9 @@ press the center button to confirm the position.
 4. Then set shared zone where the robots will share the drop-off zone (If running server & client)
 5. Set remaining zones
 6. Let the program run
+
+## Tests 
+https://docs.google.com/document/d/1GjgFoYxHxjOlEtBsgi7YkAAaRv6gSJomERTnEkErh2c/edit
 
 ## Features
 
