@@ -3,6 +3,7 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait
+from datetime import datetime
 
 robot = EV3Brick()
 grip = Motor(Port.A)
@@ -171,6 +172,14 @@ if __name__ == "__main__":
     nrOfZones = input_number()
     PICKUPZONE = calibrate_zones(nrOfZones)
     move(PICKUPZONE[0], 0)
+    
+    wait_for_time = True
+    while wait_for_time:
+        wait(1000)
+        date = (datetime.now())
+        time  = date.strftime("%H:%M")
+        if time == "09:59":
+            wait_for_time = False
 
     while True:
         if pickup(PICKUPZONE[0], PICKUPZONE[1]):
