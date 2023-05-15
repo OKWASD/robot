@@ -3,6 +3,7 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait
+from pybricks.messaging import BluetoothMailboxServer, TextMailbox
 
 robot = EV3Brick()
 grip = Motor(Port.A)
@@ -11,7 +12,7 @@ base = Motor(Port.C, Direction.COUNTERCLOCKWISE, [12, 36])
 base_touch = TouchSensor(Port.S1)
 color_sensor = ColorSensor(Port.S2)
 ZONES = []
-LOGLEVEL = 2 #Set log level
+LOGLEVEL = 2
 
 def log(message, level, clearFirst=False):
     if level <= LOGLEVEL:
@@ -20,6 +21,7 @@ def log(message, level, clearFirst=False):
         
         print(message)
         robot.screen.print(message)
+
 
 def move(location, angle, armFirst = False):
     if armFirst:
@@ -69,8 +71,10 @@ def pickup(location=base.angle(), height=-40):
 
     return isHolding
 
+
 def is_holding() -> bool:
     return grip.angle() < -18
+
 
 def drop(location=base.angle(), height=-40):
     move(location, height)
@@ -124,7 +128,6 @@ def calibrate_zones(nrOfZones):
             if PICKUPZONE == None:
                 PICKUPZONE = (base.angle(), arm.angle())
                 log("Set\nSet drop-off zone" + str(colorIndex), 0, True)
-
             else:
                 currentZone = (base.angle(), arm.angle())
                 pickup(currentZone[0], currentZone[1])
@@ -167,18 +170,29 @@ def input_number(min=0, max=10):
     return number
 
 if __name__ == "__main__":
+    #Set server
+    server = BluetoothMailboxServer()
+    mbox = TextMailbox("text", server)
+    server.wait_for_connection()
+    log("CONNECTED", 2)
+
     calibrate()
     nrOfZones = input_number()
     PICKUPZONE = calibrate_zones(nrOfZones)
     move(PICKUPZONE[0], 0)
 
     while True:
+        wait(5000)
+        if mbox.read() == "COLLISION":
+            move(base.angle(), 70)
+            mbox.send("DONE")
+            mbox.wait()
         if pickup(PICKUPZONE[0], PICKUPZONE[1]):
             robot.screen.clear()
             wait(500)
             color = get_color()
             log(color[0], 0, True)
-            move(base.angle(), 30) 
+            move(base.angle(), 30)
             drop(color[2], color[3])
             move(base.angle(), 30)
             move(PICKUPZONE[0], 0)

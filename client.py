@@ -3,6 +3,7 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait
+from pybricks.messaging import TextMailbox, BluetoothMailboxClient
 
 robot = EV3Brick()
 grip = Motor(Port.A)
@@ -11,7 +12,8 @@ base = Motor(Port.C, Direction.COUNTERCLOCKWISE, [12, 36])
 base_touch = TouchSensor(Port.S1)
 color_sensor = ColorSensor(Port.S2)
 ZONES = []
-LOGLEVEL = 2 #Set log level
+LOGLEVEL = 2
+SERVERNAME = "ev3dev"
 
 def log(message, level, clearFirst=False):
     if level <= LOGLEVEL:
@@ -20,6 +22,7 @@ def log(message, level, clearFirst=False):
         
         print(message)
         robot.screen.print(message)
+
 
 def move(location, angle, armFirst = False):
     if armFirst:
@@ -69,8 +72,10 @@ def pickup(location=base.angle(), height=-40):
 
     return isHolding
 
+
 def is_holding() -> bool:
     return grip.angle() < -18
+
 
 def drop(location=base.angle(), height=-40):
     move(location, height)
@@ -104,6 +109,7 @@ def get_color():
 def calibrate_zones(nrOfZones):
     colorIndex = 1
     PICKUPZONE = None
+    COLLISIONZONE = False
     log("Set pick-up zone", 0, True)
     while len(ZONES) < nrOfZones:
         pressedButtons = robot.buttons.pressed()
@@ -123,8 +129,19 @@ def calibrate_zones(nrOfZones):
         if Button.CENTER in pressedButtons:
             if PICKUPZONE == None:
                 PICKUPZONE = (base.angle(), arm.angle())
+                log("Set\nSet collision-zone" + str(colorIndex), 0, True)
+            elif COLLISIONZONE == False:
+                currentZone = (base.angle(), arm.angle())
+                pickup(currentZone[0], currentZone[1])
+                wait(500)
+                color = color_sensor.rgb()
+                wait(100)
+                ambient = color_sensor.ambient()
+                base.hold()
+                ZONES.append(("COLLISION", (color[0] * ambient, color[1] * ambient, color[2] * ambient), currentZone[0], currentZone[1]))
+                drop(currentZone[0], currentZone[1])
                 log("Set\nSet drop-off zone" + str(colorIndex), 0, True)
-
+                COLLISIONZONE = True
             else:
                 currentZone = (base.angle(), arm.angle())
                 pickup(currentZone[0], currentZone[1])
@@ -167,21 +184,32 @@ def input_number(min=0, max=10):
     return number
 
 if __name__ == "__main__":
+    #Set client
+    client = BluetoothMailboxClient()
+    mbox = TextMailbox("text", client)
+    client.connect(SERVERNAME)
+    log("CONNECTED", 2)
+
     calibrate()
     nrOfZones = input_number()
     PICKUPZONE = calibrate_zones(nrOfZones)
     move(PICKUPZONE[0], 0)
 
     while True:
+        wait(5000)
         if pickup(PICKUPZONE[0], PICKUPZONE[1]):
             robot.screen.clear()
             wait(500)
             color = get_color()
             log(color[0], 0, True)
             move(base.angle(), 30) 
+            if color[0] == "COLLISION":
+                mbox.send("COLLISION")
+                mbox.wait()
             drop(color[2], color[3])
             move(base.angle(), 30)
             move(PICKUPZONE[0], 0)
+            mbox.send("DONE")
         else:
             robot.speaker.beep()
             log("Nothing", 0, True)
